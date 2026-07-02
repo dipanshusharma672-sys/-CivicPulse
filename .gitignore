@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+# Database (can be re-generated using pipeline scripts)
+data/smart_city.db
+
+# OS files
+.DS_Store
+Thumbs.db

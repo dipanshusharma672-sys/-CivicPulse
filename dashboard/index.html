@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart City Analytics Dashboard</title>
+    
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Leaflet.js (GIS Mapping) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Apache ECharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-city brand-icon"></i>
+                <div class="brand-text">
+                    <h2>CivicPulse</h2>
+                    <span>Smart City Analytics</span>
+                </div>
+            </div>
+            
+            <!-- Global Selectors -->
+            <div class="global-filters">
+                <div class="filter-group">
+                    <label for="city-select"><i class="fa-solid fa-location-dot"></i> City</label>
+                    <select id="city-select">
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Bengaluru">Bengaluru</option>
+                        <option value="New Delhi">New Delhi</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="year-select"><i class="fa-solid fa-calendar"></i> Year</label>
+                    <select id="year-select">
+                        <option value="2026" selected>2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <ul>
+                    <li class="nav-item active" data-tab="executive">
+                        <i class="fa-solid fa-chart-line"></i> <span>Executive Overview</span>
+                    </li>
+                    <li class="nav-item" data-tab="traffic">
+                        <i class="fa-solid fa-car"></i> <span>Traffic Analytics</span>
+                    </li>
+                    <li class="nav-item" data-tab="pollution">
+                        <i class="fa-solid fa-smog"></i> <span>Pollution Index</span>
+                    </li>
+                    <li class="nav-item" data-tab="weather">
+                        <i class="fa-solid fa-cloud-sun-rain"></i> <span>Weather Forecast</span>
+                    </li>
+                    <li class="nav-item" data-tab="crime">
+                        <i class="fa-solid fa-shield-halved"></i> <span>Crime Analytics</span>
+                    </li>
+                    <li class="nav-item" data-tab="transport">
+                        <i class="fa-solid fa-bus"></i> <span>Public Transport</span>
+                    </li>
+                    <li class="nav-item" data-tab="population">
+                        <i class="fa-solid fa-users"></i> <span>Population Metrics</span>
+                    </li>
+                    <li class="nav-item" data-tab="energy">
+                        <i class="fa-solid fa-bolt"></i> <span>Energy Grid</span>
+                    </li>
+                    <li class="nav-item" data-tab="water">
+                        <i class="fa-solid fa-droplet"></i> <span>Water Utilities</span>
+                    </li>
+                    <li class="nav-item" data-tab="healthcare">
+                        <i class="fa-solid fa-heart-pulse"></i> <span>Healthcare Systems</span>
+                    </li>
+                    <li class="nav-item" data-tab="education">
+                        <i class="fa-solid fa-graduation-cap"></i> <span>Education Status</span>
+                    </li>
+                    <li class="nav-item" data-tab="economy">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> <span>Economic Growth</span>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <div class="user-info">
+                        <strong>City Admin</strong>
+                        <span>State Security Level 1</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header bar -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h1 id="dashboard-title">Executive Dashboard</h1>
+                    <span id="dashboard-subtitle">Urban analytics command center for Mumbai (2026)</span>
+                </div>
+                <div class="header-right">
+                    <button class="live-toggle-btn" id="live-btn" title="Toggle Real-Time API Feed">
+                        <i class="fa-solid fa-satellite-dish"></i> <span>Go Live</span>
+                    </button>
+                    <div class="theme-toggle" id="theme-btn" title="Toggle Dark/Light Mode">
+                        <i class="fa-solid fa-moon"></i>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="pulse-dot"></span>
+                        <span>AI Processing Core Online</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Panels -->
+            <div class="dashboard-panels">
+                
+                <!-- 1. EXECUTIVE DASHBOARD -->
+                <section class="tab-panel active" id="panel-executive">
+                    <div class="kpi-grid">
+                        <div class="kpi-card" data-metric="population">
+                            <div class="kpi-icon"><i class="fa-solid fa-users-viewfinder"></i></div>
+                            <div class="kpi-details">
+                                <h3>Total Population</h3>
+                                <div class="kpi-value" id="exec-pop">-</div>
+                                <span class="kpi-trend positive"><i class="fa-solid fa-arrow-trend-up"></i> Density: <span id="exec-density">-</span>/km²</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" data-metric="aqi">
+                            <div class="kpi-icon"><i class="fa-solid fa-wind"></i></div>
+                            <div class="kpi-details">
+                                <h3>Average AQI</h3>
+                                <div class="kpi-value" id="exec-aqi">-</div>
+                                <span class="kpi-trend" id="exec-aqi-status">-</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" data-metric="crime">
+                            <div class="kpi-icon"><i class="fa-solid fa-shield-virus"></i></div>
+                            <div class="kpi-details">
+                                <h3>Total Crimes</h3>
+                                <div class="kpi-value" id="exec-crime">-</div>
+                                <span class="kpi-trend negative"><i class="fa-solid fa-triangle-exclamation"></i> Active cases</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" data-metric="traffic">
+                            <div class="kpi-icon"><i class="fa-solid fa-truck-monster"></i></div>
+                            <div class="kpi-details">
+                                <h3>Traffic Congestion</h3>
+                                <div class="kpi-value" id="exec-traffic">-</div>
+                                <span class="kpi-trend neutral"><i class="fa-solid fa-arrows-spin"></i> Avg Index</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" data-metric="transport">
+                            <div class="kpi-icon"><i class="fa-solid fa-train-subway"></i></div>
+                            <div class="kpi-details">
+                                <h3>Transport Users</h3>
+                                <div class="kpi-value" id="exec-passengers">-</div>
+                                <span class="kpi-trend positive"><i class="fa-solid fa-arrow-trend-up"></i> Daily Mean</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" data-metric="weather">
+                            <div class="kpi-icon"><i class="fa-solid fa-temperature-half"></i></div>
+                            <div class="kpi-details">
+                                <h3>Average Temperature</h3>
+                                <div class="kpi-value" id="exec-temp">-</div>
+                                <span class="kpi-trend"><i class="fa-solid fa-droplet"></i> Rain/yr: <span id="exec-rain">-</span> mm</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" data-metric="energy">
+                            <div class="kpi-icon"><i class="fa-solid fa-plug"></i></div>
+                            <div class="kpi-details">
+                                <h3>Energy Usage</h3>
+                                <div class="kpi-value" id="exec-energy">-</div>
+                                <span class="kpi-trend positive"><i class="fa-solid fa-leaf"></i> <span id="exec-renew">-</span>% Renewable</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" data-metric="water">
+                            <div class="kpi-icon"><i class="fa-solid fa-glass-water"></i></div>
+                            <div class="kpi-details">
+                                <h3>Water Usage</h3>
+                                <div class="kpi-value" id="exec-water">-</div>
+                                <span class="kpi-trend"><i class="fa-solid fa-warehouse"></i> Reservoir: <span id="exec-reservoir">-</span>%</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" data-metric="green">
+                            <div class="kpi-icon"><i class="fa-solid fa-tree"></i></div>
+                            <div class="kpi-details">
+                                <h3>Green Area %</h3>
+                                <div class="kpi-value" id="exec-green">-</div>
+                                <span class="kpi-trend positive"><i class="fa-solid fa-spa"></i> Urban Forest Canopy</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" data-metric="response">
+                            <div class="kpi-icon"><i class="fa-solid fa-kit-medical"></i></div>
+                            <div class="kpi-details">
+                                <h3>Emergency Response</h3>
+                                <div class="kpi-value" id="exec-response">-</div>
+                                <span class="kpi-trend positive"><i class="fa-solid fa-clock"></i> Target: &lt;15 mins</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>Comprehensive Smart City Health Index (Monthly Trends)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="exec-chart-index"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card map-card">
+                            <div class="card-header">
+                                <h3>City GIS Core View Layers</h3>
+                                <div class="map-controls">
+                                    <button class="map-layer-btn active" data-layer="traffic"><i class="fa-solid fa-car"></i> Traffic</button>
+                                    <button class="map-layer-btn" data-layer="crime"><i class="fa-solid fa-shield"></i> Crime</button>
+                                    <button class="map-layer-btn" data-layer="transit"><i class="fa-solid fa-route"></i> Transit</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="exec-map" class="map-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. TRAFFIC ANALYTICS DASHBOARD -->
+                <section class="tab-panel" id="panel-traffic">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>Average Speed</h4>
+                            <div class="val" id="traffic-speed">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Congestion Index</h4>
+                            <div class="val" id="traffic-congestion">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Vehicle Count</h4>
+                            <div class="val" id="traffic-vehicles">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Peak Hour</h4>
+                            <div class="val text-val" id="traffic-peak">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Accident Count</h4>
+                            <div class="val" id="traffic-accidents">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-bar">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span><strong>Traffic ML Insight:</strong> <span id="traffic-insight-text">Predicting congestion index patterns based on current weather conditions.</span></span>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Daily Traffic Congestion Trend</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="traffic-chart-trend"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Congestion by Area & Road Distribution</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="traffic-chart-area"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>AI Congestion Forecast Model (Tomorrow & 7-Day Horizon)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="traffic-chart-forecast"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. POLLUTION ANALYTICS -->
+                <section class="tab-panel" id="panel-pollution">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini" data-status="aqi">
+                            <h4>AQI</h4>
+                            <div class="val" id="pollution-aqi">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>PM2.5 (&mu;g/m³)</h4>
+                            <div class="val" id="pollution-pm25">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>PM10 (&mu;g/m³)</h4>
+                            <div class="val" id="pollution-pm10">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>CO (mg/m³)</h4>
+                            <div class="val" id="pollution-co">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>NO₂ (&mu;g/m³)</h4>
+                            <div class="val" id="pollution-no2">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>SO₂ (&mu;g/m³)</h4>
+                            <div class="val" id="pollution-so2">-</div>
+                        </div>
+                    </div>
+
+                    <div class="insight-bar error-state">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span><strong>Pollution Alert:</strong> Elevated PM2.5 levels detected during periods of high temperatures and low winds.</span>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Monthly AQI Trend</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="pollution-chart-trend"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Pollutant Concentration Distribution</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="pollution-chart-dist"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>Random Forest 7-Day AQI Forecast</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="pollution-chart-forecast"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. WEATHER DASHBOARD -->
+                <section class="tab-panel" id="panel-weather">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>Temperature (&deg;C)</h4>
+                            <div class="val" id="weather-temp">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Humidity</h4>
+                            <div class="val" id="weather-humidity">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Rainfall (Total)</h4>
+                            <div class="val" id="weather-rain">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Wind Speed</h4>
+                            <div class="val" id="weather-wind">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Barometric Pressure</h4>
+                            <div class="val" id="weather-pressure">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>UV Index</h4>
+                            <div class="val" id="weather-uv">-</div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Seasonal Temperature Trend</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="weather-chart-temp"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Humidity and Rainfall Correlation</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="weather-chart-rain"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>AI Weather Forecast: Next 7 Days (Temp vs Rainfall)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="weather-chart-forecast"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. CRIME ANALYTICS -->
+                <section class="tab-panel" id="panel-crime">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>Total Crimes</h4>
+                            <div class="val" id="crime-total">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Crime Rate (per 100k)</h4>
+                            <div class="val" id="crime-rate">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Arrest Rate</h4>
+                            <div class="val" id="crime-arrest">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Solved Cases</h4>
+                            <div class="val" id="crime-solved">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Active Cases</h4>
+                            <div class="val" id="crime-active">-</div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Crime Category Distribution</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="crime-chart-category"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Crime Density by District (Rank Analysis)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="crime-chart-district"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>ML Time-Series Crime Hotspot Forecast Model</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="crime-chart-forecast"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. PUBLIC TRANSPORT DASHBOARD -->
+                <section class="tab-panel" id="panel-transport">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>Daily Passengers (Avg)</h4>
+                            <div class="val" id="transport-passengers">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Bus Utilization</h4>
+                            <div class="val" id="transport-bus">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Metro Ridership</h4>
+                            <div class="val" id="transport-metro">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Average Delay</h4>
+                            <div class="val" id="transport-delay">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Route Efficiency</h4>
+                            <div class="val" id="transport-efficiency">-</div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Passenger Trend Over Months</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="transport-chart-trend"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Bus Occupancy vs Metro Load Distribution</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="transport-chart-dist"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>Public Transport Ridership Demand Prediction</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="transport-chart-forecast"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. POPULATION ANALYTICS -->
+                <section class="tab-panel" id="panel-population">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>Population</h4>
+                            <div class="val" id="pop-population">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Density (people/km²)</h4>
+                            <div class="val" id="pop-density">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Literacy Rate</h4>
+                            <div class="val" id="pop-literacy">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Employment Rate</h4>
+                            <div class="val" id="pop-employment">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Urban Growth Rate</h4>
+                            <div class="val" id="pop-growth">-</div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>Population Growth Forecast (10-Year Horizon: Historical to 2035)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="pop-chart-forecast"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. ENERGY DASHBOARD -->
+                <section class="tab-panel" id="panel-energy">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>Electricity Consumption (Daily Avg)</h4>
+                            <div class="val" id="energy-consumption">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Renewable Energy %</h4>
+                            <div class="val" id="energy-renewable">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Peak Usage (Hourly Max)</h4>
+                            <div class="val" id="energy-peak">-</div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Renewable vs Non-renewable Split</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="energy-chart-split"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Consumption by Sector (Residential vs Commercial vs Industrial)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="energy-chart-sector"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>XGBoost/Random Forest Power Grid Peak Demand Prediction (7-Day Horizon)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="energy-chart-forecast"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 9. WATER ANALYTICS -->
+                <section class="tab-panel" id="panel-water">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>Daily Consumption (Avg)</h4>
+                            <div class="val" id="water-use">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Water Loss (Leakage %)</h4>
+                            <div class="val" id="water-loss">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Reservoir Level</h4>
+                            <div class="val" id="water-reservoir">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Daily Supply</h4>
+                            <div class="val" id="water-supply">-</div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Water Reservoir Level Trend</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="water-chart-level"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Leakage and Loss Analysis</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="water-chart-leakage"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>Future Water Demand Prediction Forecast</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="water-chart-forecast"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 10. HEALTHCARE DASHBOARD -->
+                <section class="tab-panel" id="panel-healthcare">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>Hospitals Operational</h4>
+                            <div class="val" id="health-hospitals">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>ICU Bed Availability</h4>
+                            <div class="val" id="health-beds">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Infectious Disease Cases</h4>
+                            <div class="val" id="health-diseases">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Vaccination Rate %</h4>
+                            <div class="val" id="health-vaccination">-</div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Bed Availability vs Patient Admission Rate</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="health-chart-beds"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h3>Infectious Disease Trend vs Weather Correlates</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="health-chart-diseases"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 11. EDUCATION DASHBOARD -->
+                <section class="tab-panel" id="panel-education">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>Primary/Secondary Schools</h4>
+                            <div class="val" id="edu-schools">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Colleges & Universities</h4>
+                            <div class="val" id="edu-colleges">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Literacy Rate %</h4>
+                            <div class="val" id="edu-literacy">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Graduation Rate %</h4>
+                            <div class="val" id="edu-graduation">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Active Student Enrollment</h4>
+                            <div class="val" id="edu-enrollment">-</div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>Education Graduation & Literacy Trend (2024 - 2026)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="edu-chart-trend"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 12. ECONOMIC DASHBOARD -->
+                <section class="tab-panel" id="panel-economy">
+                    <div class="kpi-grid-mini">
+                        <div class="kpi-card mini">
+                            <h4>City GDP ($ Billions)</h4>
+                            <div class="val" id="econ-gdp">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Employment Rate</h4>
+                            <div class="val" id="econ-employment">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Inflation Rate %</h4>
+                            <div class="val" id="econ-inflation">-</div>
+                        </div>
+                        <div class="kpi-card mini">
+                            <h4>Average Disposable Income</h4>
+                            <div class="val" id="econ-income">-</div>
+                        </div>
+                    </div>
+
+                    <div class="visuals-row">
+                        <div class="chart-card large">
+                            <div class="card-header">
+                                <h3>Economic Progression Indices (GDP Growth vs Income Growth)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" id="econ-chart-growth"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    
+    <!-- JS files -->
+    <script src="map.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
