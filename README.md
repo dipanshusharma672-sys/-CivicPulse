@@ -1,6 +1,9 @@
 # Smart City Analytics Platform: AI-Driven Urban Planning Dashboard
 
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?logo=github&logoColor=white)](https://github.com/dipanshusharma672-sys/-CivicPulse)
+
 An interactive, AI-powered analytics platform designed for urban administrators to monitor, analyze, and forecast key city indicators. The dashboard consolidates 12 public datasets to identify historical trends, run machine learning predictions, and support data-driven municipal planning.
+
 
 ---
 
