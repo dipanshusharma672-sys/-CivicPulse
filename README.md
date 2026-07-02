@@ -1,8 +1,12 @@
 # Smart City Analytics Platform: AI-Driven Urban Planning Dashboard
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?logo=github&logoColor=white)](https://github.com/dipanshusharma672-sys/-CivicPulse)
+[![Live Dashboard on Vercel](https://img.shields.io/badge/Vercel-Live_Dashboard-000000?logo=vercel&logoColor=white)](https://civic-pulse-dipanshusharma672-sys-projects.vercel.app?_vercel_share=9WdP9ThZnoCk4G70wfDO3dbwzlXAQIUH)
 
 An interactive, AI-powered analytics platform designed for urban administrators to monitor, analyze, and forecast key city indicators. The dashboard consolidates 12 public datasets to identify historical trends, run machine learning predictions, and support data-driven municipal planning.
+
+🚀 **Live Deployment URL:** [civic-pulse-dipanshusharma672-sys-projects.vercel.app (Public Share Link)](https://civic-pulse-dipanshusharma672-sys-projects.vercel.app?_vercel_share=9WdP9ThZnoCk4G70wfDO3dbwzlXAQIUH)
+
 
 
 ---
